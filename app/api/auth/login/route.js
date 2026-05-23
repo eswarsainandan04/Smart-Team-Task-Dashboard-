@@ -50,8 +50,8 @@ export async function POST(req) {
       );
     }
 
-    // response — return user object only; client will manage sessionStorage.
-    return NextResponse.json(
+    // Set a server-readable auth cookie so middleware can protect routes.
+    const response = NextResponse.json(
       {
         message: "Login successful",
         user: {
@@ -62,6 +62,16 @@ export async function POST(req) {
       },
       { status: 200 }
     );
+
+    response.cookies.set("auth_user", user.user_id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
 
   } catch (error) {
 
