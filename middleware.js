@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 
 export function middleware(req) {
-	// Disabled automatic redirect because the app uses client-side sessionStorage
-	// to manage per-tab sessions. Client pages perform their own checks and
-	// redirect if needed. Let requests through so login can set sessionStorage.
+	const authUser = req.cookies.get("auth_user")?.value;
+
+	if (!authUser) {
+		const loginUrl = new URL("/login", req.url);
+		return NextResponse.redirect(loginUrl);
+	}
+
 	return NextResponse.next();
 }
 
